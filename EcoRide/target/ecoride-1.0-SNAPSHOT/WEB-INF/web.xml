@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                             http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <display-name>EcoRide</display-name>
+
+    <!-- =====================================================
+         Halaman pembuka saat aplikasi pertama dibuka
+         ===================================================== -->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+    <!-- =====================================================
+         LoginServlet
+         URL: /login
+         ===================================================== -->
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>com.ecoride.ecoride.servlet.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <!-- =====================================================
+         RegisterServlet
+         URL: /register
+         ===================================================== -->
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>com.ecoride.ecoride.servlet.RegisterServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <!-- =====================================================
+         VehicleServlet
+         URL: /vehicles
+         ===================================================== -->
+    <servlet>
+        <servlet-name>VehicleServlet</servlet-name>
+        <servlet-class>com.ecoride.ecoride.servlet.VehicleServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VehicleServlet</servlet-name>
+        <url-pattern>/vehicles</url-pattern>
+    </servlet-mapping>
+
+    <!-- =====================================================
+         RentServlet
+         URL: /rent
+         ===================================================== -->
+    <servlet>
+        <servlet-name>RentServlet</servlet-name>
+        <servlet-class>com.ecoride.ecoride.servlet.RentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RentServlet</servlet-name>
+        <url-pattern>/rent</url-pattern>
+    </servlet-mapping>
+
+    <!-- =====================================================
+         TransactionServlet
+         URL: /transactions
+         ===================================================== -->
+    <servlet>
+        <servlet-name>TransactionServlet</servlet-name>
+        <servlet-class>com.ecoride.ecoride.servlet.TransactionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TransactionServlet</servlet-name>
+        <url-pattern>/transactions</url-pattern>
+    </servlet-mapping>
+
+    <!-- =====================================================
+         TopUpServlet
+         URL: /topup
+         ===================================================== -->
+    <servlet>
+        <servlet-name>TopUpServlet</servlet-name>
+        <servlet-class>com.ecoride.ecoride.servlet.TopUpServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TopUpServlet</servlet-name>
+        <url-pattern>/topup</url-pattern>
+    </servlet-mapping>
+
+    <!-- =====================================================
+         AdminServlet
+         URL: /admin  (semua aksi admin lewat sini)
+         ===================================================== -->
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>com.ecoride.ecoride.servlet.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/admin</url-pattern>
+    </servlet-mapping>
+
+    <!-- =====================================================
+         Session timeout: 30 menit tidak aktif = logout otomatis
+         ===================================================== -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <!-- =====================================================
+         Halaman error global
+         ===================================================== -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/index.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/index.jsp</location>
+    </error-page>
+
+</web-app>
