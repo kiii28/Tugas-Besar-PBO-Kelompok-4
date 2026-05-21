@@ -5,84 +5,64 @@
 package com.ecoride.ecoride.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet; // PENTING: Ditambahkan agar web mengenali url servlet ini
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// Import model kendaraan (Menyesuaikan dengan tugas Syahrial di folder model)
+import com.ecoride.ecoride.model.ElectricBike;
+import com.ecoride.ecoride.model.ElectricScooter;
+import com.ecoride.ecoride.model.Vehicle;
+
 /**
  *
- * @author rifky
+ * @author Fikri
  */
+@WebServlet("/member/vehicles") // Mengarahkan URL browser ke halaman katalog kendaraan Anda
 public class VehicleServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet VehicleServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet VehicleServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        } finally {
-            out.close();
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        // 1. MEMBUAT MOCK DATA (DATA TIRUAN KENDARAAN)
+        List<Vehicle> listKendaraanTiruan = new ArrayList<>();
+        
+        // Membuat data Sepeda Listrik tiruan 1
+        ElectricBike bike1 = new ElectricBike();
+        bike1.setVehicleID("EB-401");
+        bike1.setModel("EcoBike Deluxe X");
+        bike1.setBatteryLevel(92.5);
+        bike1.setAvailable(true);
+        bike1.setHasPedals(true);
+        
+        // Membuat data Skuter Listrik tiruan 2
+        ElectricScooter scooter1 = new ElectricScooter();
+        scooter1.setVehicleID("ES-202");
+        scooter1.setModel("SpeedScooter Evo");
+        scooter1.setBatteryLevel(40.0);
+        scooter1.setAvailable(true);
+        scooter1.setMaxSpeed(25);
+        
+        // Masukkan objek tiruan ke dalam list
+        listKendaraanTiruan.add(bike1);
+        listKendaraanTiruan.add(scooter1);
+        
+        // 2. MENGIRIM DATA KE JSP
+        // Menyimpan list ke dalam request attribute bernama "daftarKendaraan"
+        request.setAttribute("daftarKendaraan", listKendaraanTiruan);
+        
+        // Melempar request agar dibaca oleh file vehicle.jsp di folder member Anda
+        request.getRequestDispatcher("/member/vehicle.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        // Sementara kosong dulu, karena melihat daftar kendaraan menggunakan method GET (doGet)
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
