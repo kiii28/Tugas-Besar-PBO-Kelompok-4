@@ -9,5 +9,6 @@ package com.ecoride.ecoride.model;
  * @author rifky
  */
 public interface Chargable {
-    
+    void recharge();
+    double checkBatteryStatus();
 }
