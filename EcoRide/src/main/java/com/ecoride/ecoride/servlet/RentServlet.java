@@ -5,84 +5,83 @@
 package com.ecoride.ecoride.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// Import model yang dibutuhkan
+import com.ecoride.ecoride.model.ElectricBike;
+import com.ecoride.ecoride.model.ElectricScooter;
+import com.ecoride.ecoride.model.Vehicle;
+
 /**
  *
- * @author rifky
+ * @author Fikri
  */
+@WebServlet("/member/rent") // URL mapping untuk menangkap aksi sewa
 public class RentServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet RentServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet RentServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        } finally {
-            out.close();
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    // 1. MENAMPILKAN FORM KONFIRMASI SEWA
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        // Menangkap parameter ID kendaraan yang diklik dari halaman katalog
+        String vehicleId = request.getParameter("id");
+        
+        if (vehicleId == null || vehicleId.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/member/vehicles");
+            return;
+        }
+
+        // MEMBUAT MOCK DATA KENDARAAN YANG DIPILIH
+        Vehicle selectedVehicle;
+        
+        if (vehicleId.startsWith("EB")) {
+            ElectricBike bike = new ElectricBike();
+            bike.setVehicleID(vehicleId);
+            bike.setModel("EcoBike Deluxe X (Selected)");
+            bike.setBatteryLevel(92.5);
+            bike.setAvailable(true);
+            bike.setHasPedals(true);
+            selectedVehicle = bike;
+        } else {
+            ElectricScooter scooter = new ElectricScooter();
+            scooter.setVehicleID(vehicleId);
+            scooter.setModel("SpeedScooter Evo (Selected)");
+            scooter.setBatteryLevel(40.0);
+            scooter.setAvailable(true);
+            scooter.setMaxSpeed(25);
+            selectedVehicle = scooter;
+        }
+
+        // Kirim data kendaraan yang dipilih ke halaman rent.jsp
+        request.setAttribute("chosenVehicle", selectedVehicle);
+        
+        // Simulasi harga sewa statis (misal: Rp 15.000 / jam)
+        request.setAttribute("rentalPrice", 15000);
+        
+        request.getRequestDispatcher("/member/rent.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    // 2. MEMPROSES SUBMIT FORM (SIMULASI BERHASIL BAYAR)
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        // Menangkap data inputan durasi dan ID dari form rent.jsp
+        String vehicleId = request.getParameter("vehicleID");
+        String durationStr = request.getParameter("duration");
+        
+        // Di sini nanti tempat Danish/Syahrial memasukkan query INSERT ke database transaksi.
+        // Karena kita pakai Mock Data, kita langsung asumsikan proses sewa BERHASIL.
+        
+        // Set pesan sukses menggunakan session agar terbaca di halaman berikutnya
+        request.getSession().setAttribute("successMessage", "Sewa kendaraan " + vehicleId + " selama " + durationStr + " jam BERHASIL!");
+        
+        // Alihkan halaman ke Servlet Riwayat Transaksi (TransactionServlet) setelah berhasil
+        response.sendRedirect(request.getContextPath() + "/member/history");
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
