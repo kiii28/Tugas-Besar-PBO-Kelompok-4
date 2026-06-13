@@ -4,85 +4,103 @@
  */
 package com.ecoride.ecoride.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import com.ecoride.ecoride.dao.DBConnection;
+import com.ecoride.ecoride.dao.MemberDAO;
+import com.ecoride.ecoride.model.Member;
+import com.ecoride.ecoride.util.SessionUtil;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
+ * LoginServlet
+ * URL: /login  (didefinisikan di web.xml)
  *
- * @author rifky
+ * GET  → tampilkan login.jsp
+ * POST → proses form login
+ *         - Berhasil Admin  → redirect /admin
+ *         - Berhasil User   → redirect /vehicles
+ *         - Gagal           → kembali ke login.jsp dengan pesan error
  */
 public class LoginServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        } finally {
-            out.close();
-        }
-    }
+    private final MemberDAO memberDAO = new MemberDAO();
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    // =========================================================
+    // GET — tampilkan halaman login
+    // =========================================================
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        // Jika sudah login, langsung ke halaman yang sesuai
+        if (SessionUtil.isLoggedIn(request)) {
+            System.out.println("[LoginServlet] doGet() — sudah login, redirect...");
+            if (SessionUtil.isAdmin(request)) {
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/member/dashboard.jsp");
+            }
+            return;
+        }
+
+        // Tampilkan login.jsp
+        request.getRequestDispatcher("/login.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    // =========================================================
+    // POST — proses login
+    // =========================================================
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        request.setCharacterEncoding("UTF-8");
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        // DEBUG — hapus setelah aplikasi stabil
+        System.out.println("[LoginServlet] doPost() — username='" + username + "'");
+        System.out.println("[LoginServlet] doPost() — DBConnection test: "
+                + DBConnection.testConnection());
+
+        // ---- Validasi input tidak boleh kosong ----
+        if (username == null || username.trim().isEmpty()
+                || password == null || password.trim().isEmpty()) {
+            request.setAttribute("error", "Username dan password tidak boleh kosong.");
+            request.setAttribute("username", username);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            return;
+        }
+
+        // ---- Cek ke database ----
+        Member member = memberDAO.login(username.trim(), password);
+
+        if (member != null) {
+            // Login berhasil — simpan ke session
+            SessionUtil.setMember(request, member);
+            System.out.println("[LoginServlet] Login berhasil: " + member.toString());
+
+            // Arahkan sesuai role
+            if (member.isAdmin()) {
+                System.out.println("[LoginServlet] Role Admin → redirect /admin");
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
+            } else {
+                System.out.println("[LoginServlet] Role User → redirect /member");
+                response.sendRedirect(request.getContextPath() + "/member/dashboard.jsp");
+            }
+
+        } else {
+            // Login gagal
+            System.err.println("[LoginServlet] Login GAGAL untuk username: " + username);
+            request.setAttribute("error", "Username atau password salah.");
+            request.setAttribute("username", username); // isi ulang field username
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
+        }
+        
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
