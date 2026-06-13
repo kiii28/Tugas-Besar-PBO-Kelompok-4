@@ -1,3 +1,8 @@
+
+/**
+ *
+ * @author Fikri
+ */
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
@@ -20,7 +25,7 @@ import com.ecoride.ecoride.model.Vehicle;
  *
  * @author Fikri
  */
-@WebServlet("/member/rent") // URL mapping untuk menangkap aksi sewa
+
 public class RentServlet extends HttpServlet {
 
     // 1. MENAMPILKAN FORM KONFIRMASI SEWA
