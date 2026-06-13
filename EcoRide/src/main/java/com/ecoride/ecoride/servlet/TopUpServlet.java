@@ -4,85 +4,86 @@
  */
 package com.ecoride.ecoride.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import com.ecoride.ecoride.dao.MemberDAO;
+import com.ecoride.ecoride.model.Member;
+import com.ecoride.ecoride.util.SessionUtil;
+
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
+ * TopUpServlet
+ * URL: /topup
  *
- * @author rifky
+ * GET  → tampilkan topup.jsp
+ * POST → proses top-up saldo, redirect ke dashboard
  */
+
 public class TopUpServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet TopUpServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet TopUpServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        } finally {
-            out.close();
-        }
-    }
+    private final MemberDAO memberDAO = new MemberDAO();
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        if (SessionUtil.redirectIfNotLoggedIn(request, response)) return;
+
+        request.setAttribute("member", SessionUtil.getMember(request));
+        request.getRequestDispatcher("/member/topup.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        if (SessionUtil.redirectIfNotLoggedIn(request, response)) return;
+
+        request.setCharacterEncoding("UTF-8");
+        Member member = SessionUtil.getMember(request);
+
+        String amountStr = request.getParameter("amount");
+        double amount;
+
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Jumlah top-up tidak valid.");
+            request.setAttribute("member", member);
+            request.getRequestDispatcher("/member/topup.jsp").forward(request, response);
+            return;
+        }
+
+        // validasi jumlah
+        if (amount < 10000) {
+            request.setAttribute("error", "Minimal top-up adalah Rp10.000.");
+            request.setAttribute("member", member);
+            request.getRequestDispatcher("/member/topup.jsp").forward(request, response);
+            return;
+        }
+        if (amount > 1000000) {
+            request.setAttribute("error", "Maksimal top-up adalah Rp1.000.000 sekali transaksi.");
+            request.setAttribute("member", member);
+            request.getRequestDispatcher("/member/topup.jsp").forward(request, response);
+            return;
+        }
+
+        boolean success = memberDAO.topUp(member.getId(), amount);
+
+        if (success) {
+            // refresh data member di session agar saldo tampil terbaru
+            Member updated = memberDAO.findById(member.getId());
+            if (updated != null) SessionUtil.updateMember(request, updated);
+
+            response.sendRedirect(request.getContextPath() + "/vehicles?topup=success");
+        } else {
+            request.setAttribute("error", "Top-up gagal. Coba lagi.");
+            request.setAttribute("member", member);
+            request.getRequestDispatcher("/member/topup.jsp").forward(request, response);
+        }
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
