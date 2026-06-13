@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  * kita gunakan trik menyimpan data dalam format String/Array Map terstruktur 
  * agar tidak memicu eror import merah di proyek kelompok.
  */
-@WebServlet("/member/history")
+
 public class TransactionServlet extends HttpServlet {
 
     @Override
