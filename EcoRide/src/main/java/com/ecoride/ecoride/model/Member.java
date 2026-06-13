@@ -14,21 +14,21 @@ package com.ecoride.ecoride.model;
  * Member — Subclass dari Account
  *
  * Merepresentasikan pengguna yang bisa menyewa kendaraan.
- * Mewarisi semua atribut dan method dari Account:
- *   id, username, password, balance, login(), logout(), updateProfile()
+ * Mewarisi: id, username, password, balance dari Account.
  *
- * Tambahan di Member:
- *   - membershipType : jenis keanggotaan (Regular / Premium)
- *   - role           : objek Role untuk hak akses (Admin / User)
- *   - topUpBalance() : menambah saldo
- *   - getDiscount()  : diskon sewa berdasarkan membership
+ * Tambahan:
+ *   - membershipType : "Regular" atau "Premium"
+ *   - role           : objek Role (Admin / User)
+ *   - topUpBalance() : tambah saldo
+ *   - deductBalance(): kurangi saldo
+ *   - getDiscount()  : diskon berdasarkan membership
+ *   - isAdmin()      : cek apakah admin
  */
 public class Member extends Account {
 
     // =========================================================
     // Atribut tambahan (Private)
     // =========================================================
-
     private String membershipType;  // "Regular" atau "Premium"
     private Role   role;            // objek Role dari Role.java
 
@@ -36,16 +36,14 @@ public class Member extends Account {
     // Constructor
     // =========================================================
 
-    /**
-     * Constructor kosong.
-     */
+    /** Constructor kosong — dipakai framework/DAO */
     public Member() {
         super();
     }
 
     /**
-     * Constructor dasar — dipakai saat register member baru.
-     * Role default adalah "User", membership default "Regular".
+     * Constructor register — user baru.
+     * Role default: User, Membership default: Regular.
      */
     public Member(String username, String password) {
         super(0, username, password, 0.0);
@@ -54,36 +52,46 @@ public class Member extends Account {
     }
 
     /**
-     * Constructor lengkap — dipakai MemberDAO saat membaca
-     * data dari database.
-     *
-     * @param id             ID dari tabel members
-     * @param username       username member
-     * @param password       password hash SHA-256
-     * @param balance        saldo member
-     * @param membershipType "Regular" atau "Premium"
-     * @param roleName       "Admin" atau "User"
+     * Constructor lengkap — dipakai MemberDAO.mapRowToMember()
+     * setelah membaca data dari database.
      */
     public Member(int id, String username, String password,
                   double balance, String membershipType, String roleName) {
         super(id, username, password, balance);
         this.membershipType = membershipType;
-        this.role           = new Role(roleName);
+        // Bungkus roleName dari DB menjadi objek Role
+        this.role = new Role(roleName);
     }
 
     // =========================================================
-    // Method (Public)
+    // Implementasi abstract method dari Account
+    // =========================================================
+    @Override
+    public void login() {
+        System.out.println("[Member] " + getUsername() + " login.");
+    }
+
+    @Override
+    public void logout() {
+        System.out.println("[Member] " + getUsername() + " logout.");
+    }
+
+    @Override
+    public void updateProfile() {
+        System.out.println("[Member] " + getUsername() + " updateProfile.");
+    }
+
+    // =========================================================
+    // Method bisnis
     // =========================================================
 
     /**
-     * Menambah saldo member.
-     * Dipanggil oleh TopUpServlet setelah menerima jumlah top-up.
-     *
-     * @param amount jumlah uang yang ditambahkan (harus positif)
+     * Tambah saldo member (top-up).
+     * Dipanggil TopUpServlet setelah validasi jumlah.
      */
     public void topUpBalance(double amount) {
         if (amount <= 0) {
-            System.out.println("[Member] Jumlah top-up harus lebih dari 0.");
+            System.err.println("[Member] topUpBalance() — amount harus > 0.");
             return;
         }
         setBalance(getBalance() + amount);
@@ -91,13 +99,9 @@ public class Member extends Account {
     }
 
     /**
-     * Mengembalikan persentase diskon berdasarkan membership.
-     * Dipanggil RentServlet saat menghitung total biaya sewa.
-     *
-     * Regular  → 0.0  (tidak ada diskon)
-     * Premium  → 0.15 (diskon 15%)
-     *
-     * @return nilai desimal diskon (0.0 sampai 1.0)
+     * Diskon berdasarkan membership.
+     * Regular → 0.0 (tidak ada diskon)
+     * Premium → 0.15 (diskon 15%)
      */
     public double getDiscount() {
         if ("Premium".equalsIgnoreCase(membershipType)) {
@@ -107,15 +111,13 @@ public class Member extends Account {
     }
 
     /**
-     * Mengurangi saldo — dipakai RentServlet saat
-     * transaksi sewa selesai dan total biaya dihitung.
+     * Kurangi saldo — dipakai RentServlet saat transaksi selesai.
      *
-     * @param amount jumlah yang dipotong
-     * @return true jika saldo cukup, false jika tidak
+     * @return true jika saldo cukup dan berhasil dikurangi
      */
     public boolean deductBalance(double amount) {
         if (getBalance() < amount) {
-            System.out.println("[Member] Saldo tidak cukup.");
+            System.err.println("[Member] deductBalance() — saldo tidak cukup.");
             return false;
         }
         setBalance(getBalance() - amount);
@@ -124,44 +126,38 @@ public class Member extends Account {
     }
 
     /**
-     * Mengecek apakah member ini adalah admin.
-     * Shortcut dari role.isAdmin().
+     * Cek apakah member ini adalah Admin.
+     * Null-safe: kalau role null, return false.
      */
     public boolean isAdmin() {
-        return role != null && role.isAdmin();
+        if (role == null) {
+            System.err.println("[Member] isAdmin() — role null untuk user: " + getUsername());
+            return false;
+        }
+        return role.isAdmin();
     }
 
     // =========================================================
     // Getter & Setter
     // =========================================================
+    public String getMembershipType()               { return membershipType; }
+    public void setMembershipType(String type)      { this.membershipType = type; }
 
-    public String getMembershipType() {
-        return membershipType;
-    }
-
-    public void setMembershipType(String membershipType) {
-        this.membershipType = membershipType;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    public Role getRole()                           { return role; }
+    public void setRole(Role role)                  { this.role = role; }
 
     // =========================================================
-    // toString — override dari Account
+    // toString
     // =========================================================
-
     @Override
     public String toString() {
-        return "Member{id=" + getId()
+        return "Member{"
+                + "id="          + getId()
                 + ", username='" + getUsername() + "'"
                 + ", balance="   + getBalance()
                 + ", membership='" + membershipType + "'"
-                + ", role='"     + (role != null ? role.getRoleName() : "null") + "'"
+                + ", role='"     + (role != null ? role.getRoleName() : "NULL") + "'"
+                + ", isAdmin="   + isAdmin()
                 + "}";
     }
 }
