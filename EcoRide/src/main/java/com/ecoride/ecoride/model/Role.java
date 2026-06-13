@@ -18,25 +18,33 @@ package com.ecoride.ecoride.model;
  * SessionUtil.isAdmin() mengecek role ini sebelum
  * membuka halaman admin.
  */
+
+
+/**
+ * Role — Helper Class
+ *
+ * Merepresentasikan hak akses member.
+ * Digunakan oleh Member untuk menentukan apakah
+ * member tersebut adalah Admin atau User biasa.
+ *
+ * Nilai role_name di database: "Admin" atau "User"
+ */
 public class Role {
 
     // =========================================================
-    // Konstanta — agar tidak salah ketik string role
+    // Konstanta nama role — harus sama persis dengan DB
     // =========================================================
-
     public static final String ADMIN = "Admin";
     public static final String USER  = "User";
 
     // =========================================================
     // Atribut (Private)
     // =========================================================
-
     private String roleName;
 
     // =========================================================
     // Constructor
     // =========================================================
-
     public Role() {}
 
     public Role(String roleName) {
@@ -48,41 +56,31 @@ public class Role {
     // =========================================================
 
     /**
-     * Mengambil nama role.
+     * Cek apakah role ini adalah Admin.
+     * Pakai equalsIgnoreCase supaya aman dari perbedaan
+     * huruf besar/kecil di database.
      */
+    public boolean isAdmin() {
+        return ADMIN.equalsIgnoreCase(roleName);
+    }
+
+    /**
+     * Cek apakah role ini adalah User biasa.
+     */
+    public boolean isUser() {
+        return USER.equalsIgnoreCase(roleName);
+    }
+
+    // =========================================================
+    // Getter & Setter
+    // =========================================================
     public String getRoleName() {
         return roleName;
     }
 
-    /**
-     * Mengubah nama role.
-     */
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
-
-    /**
-     * Mengecek apakah string yang diberikan adalah role yang valid.
-     * Hanya "Admin" dan "User" yang diterima.
-     *
-     * Contoh pakai:
-     *   Role.validRole("Admin") → true
-     *   Role.validRole("SuperUser") → false
-     */
-    public static boolean validRole(String role) {
-        return ADMIN.equals(role) || USER.equals(role);
-    }
-
-    /**
-     * Mengecek apakah role ini adalah Admin.
-     */
-    public boolean isAdmin() {
-        return ADMIN.equals(this.roleName);
-    }
-
-    // =========================================================
-    // toString
-    // =========================================================
 
     @Override
     public String toString() {
