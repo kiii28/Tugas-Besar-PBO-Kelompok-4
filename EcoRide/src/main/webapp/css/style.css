@@ -6,4 +6,331 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     Created on : 21 Mei 2026, 17.11.21
     Author     : rifky
 */
+/* ============================================================
+   style.css — EcoRide Global Stylesheet
+   Kelompok 4 IF-48-02, Universitas Telkom 2025
+   ============================================================ */
 
+/* Reset & Base */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                 Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #111827;
+    background: #f9fafb;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   Navbar (dipakai di halaman member & admin)
+   ============================================================ */
+.navbar {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+}
+.navbar-brand {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f6e56;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+}
+.navbar-nav a {
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background .12s, color .12s;
+}
+.navbar-nav a:hover, .navbar-nav a.active {
+    background: #f0fdf4;
+    color: #0f6e56;
+}
+.navbar-balance {
+    background: #f0fdf4;
+    color: #0f6e56;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    border: 1px solid #bbf7d0;
+}
+.btn-logout {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .12s;
+}
+.btn-logout:hover { background: #fee2e2; }
+
+/* ============================================================
+   Container
+   ============================================================ */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+.container-sm {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* ============================================================
+   Page Header
+   ============================================================ */
+.page-header {
+    margin-bottom: 2rem;
+}
+.page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.3rem;
+}
+.page-sub {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: opacity .12s, transform .1s;
+}
+.btn:hover  { opacity: 0.9; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary   { background: #0f6e56; color: white; }
+.btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+.btn-danger    { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.btn-warning   { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.btn-sm        { padding: 0.4rem 0.85rem; font-size: 0.82rem; }
+
+/* ============================================================
+   Badges / Status
+   ============================================================ */
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+.badge-green  { background: #dcfce7; color: #166534; }
+.badge-red    { background: #fef2f2; color: #991b1b; }
+.badge-yellow { background: #fffbeb; color: #92400e; }
+.badge-blue   { background: #eff6ff; color: #1d4ed8; }
+.badge-gray   { background: #f3f4f6; color: #6b7280; }
+
+/* ============================================================
+   Table
+   ============================================================ */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+thead {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+thead th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background .1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover      { background: #f9fafb; }
+tbody td {
+    padding: 0.85rem 1rem;
+    color: #374151;
+    vertical-align: middle;
+}
+
+/* ============================================================
+   Forms
+   ============================================================ */
+.form-group   { margin-bottom: 1.2rem; }
+.form-label   { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.4rem; }
+.form-input, .form-select {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #111827;
+    background: #f9fafb;
+    outline: none;
+    transition: border-color .15s, background .15s;
+    box-sizing: border-box;
+}
+.form-input:focus, .form-select:focus {
+    border-color: #0f6e56;
+    background: white;
+}
+.form-hint { font-size: 0.8rem; color: #9ca3af; margin-top: 0.3rem; }
+
+/* ============================================================
+   Alerts
+   ============================================================ */
+.alert          { padding: 0.8rem 1rem; border-radius: 10px; font-size: 0.9rem; margin-bottom: 1.2rem; }
+.alert-success  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.alert-error    { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.alert-info     { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.alert-warning  { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+/* ============================================================
+   Vehicle Cards (untuk vehicles.jsp)
+   ============================================================ */
+.vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+.vehicle-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 1.4rem;
+    transition: box-shadow .15s, transform .15s;
+}
+.vehicle-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+}
+.vehicle-icon   { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.vehicle-model  { font-weight: 600; font-size: 1rem; color: #111827; margin-bottom: 0.25rem; }
+.vehicle-type   { font-size: 0.82rem; color: #6b7280; margin-bottom: 0.75rem; }
+.vehicle-info   { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
+.vehicle-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+.vehicle-info-label { color: #9ca3af; }
+.vehicle-info-value { color: #374151; font-weight: 500; }
+
+/* Battery bar */
+.battery-bar    { height: 6px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-top: 0.2rem; }
+.battery-fill   { height: 100%; border-radius: 4px; transition: width .3s; }
+.battery-high   { background: #22c55e; }
+.battery-mid    { background: #f59e0b; }
+.battery-low    { background: #ef4444; }
+
+/* ============================================================
+   Stats Cards (untuk dashboard admin)
+   ============================================================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+.stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+}
+.stat-icon  { font-size: 2rem; margin-bottom: 0.5rem; }
+.stat-value { font-size: 2rem; font-weight: 700; color: #0f6e56; }
+.stat-label { font-size: 0.85rem; color: #6b7280; margin-top: 0.2rem; }
+
+/* ============================================================
+   Empty state
+   ============================================================ */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #9ca3af;
+}
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state-text { font-size: 1rem; }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 640px) {
+    .navbar      { padding: 0 1rem; }
+    .container   { padding: 1.5rem 1rem; }
+    .navbar-nav  { gap: 0; }
+    .navbar-nav a { padding: 0.4rem 0.6rem; font-size: 0.82rem; }
+    .hero-title  { font-size: 2rem; }
+}
