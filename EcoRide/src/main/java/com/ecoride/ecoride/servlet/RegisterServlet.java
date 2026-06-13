@@ -4,85 +4,82 @@
  */
 package com.ecoride.ecoride.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import com.ecoride.ecoride.dao.MemberDAO;
+import com.ecoride.ecoride.model.Member;
+import com.ecoride.ecoride.util.PasswordUtil;
+
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
+ * RegisterServlet
+ * URL: /register
  *
- * @author rifky
+ * GET  → tampilkan register.jsp
+ * POST → proses form registrasi, redirect ke login jika sukses
  */
+
 public class RegisterServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet RegisterServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet RegisterServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        } finally {
-            out.close();
-        }
-    }
+    private final MemberDAO memberDAO = new MemberDAO();
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        request.getRequestDispatcher("/register.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        request.setCharacterEncoding("UTF-8");
+
+        String username        = request.getParameter("username");
+        String password        = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
+
+        // validasi input
+        if (username == null || username.trim().isEmpty()) {
+            request.setAttribute("error", "Username tidak boleh kosong.");
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            return;
+        }
+        if (password == null || password.length() < 6) {
+            request.setAttribute("error", "Password minimal 6 karakter.");
+            request.setAttribute("username", username);
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            request.setAttribute("error", "Konfirmasi password tidak cocok.");
+            request.setAttribute("username", username);
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            return;
+        }
+
+        // cek username sudah ada
+        if (memberDAO.isUsernameTaken(username.trim())) {
+            request.setAttribute("error", "Username sudah dipakai, coba yang lain.");
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+            return;
+        }
+
+        // buat objek Member baru dengan password yang sudah di-hash
+        Member newMember = new Member(username.trim(), PasswordUtil.hash(password));
+
+        boolean success = memberDAO.register(newMember);
+
+        if (success) {
+            // redirect ke login dengan pesan sukses
+            response.sendRedirect(request.getContextPath() + "/login?registered=true");
+        } else {
+            request.setAttribute("error", "Registrasi gagal, coba lagi.");
+            request.getRequestDispatcher("/register.jsp").forward(request, response);
+        }
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
