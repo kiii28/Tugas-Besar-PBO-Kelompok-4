@@ -66,11 +66,15 @@
                 <h4 class="mb-0 fw-bold">🧾 Semua Transaksi</h4>
                 <small class="text-muted">Riwayat seluruh penyewaan kendaraan</small>
             </div>
-            <!-- Total Pendapatan -->
-            <div class="card border-0 shadow-sm px-4 py-2 text-end">
-                <div class="text-muted small">Total Pendapatan</div>
-                <div class="fw-bold text-success fs-5">
-                    Rp <fmt:formatNumber value="${totalPendapatan}" type="number" maxFractionDigits="0"/>
+            <div class="d-flex align-items-center gap-2">
+                <a href="${pageContext.request.contextPath}/admin" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </a>
+                <div class="card border-0 shadow-sm px-4 py-2 text-end">
+                    <div class="text-muted small">Total Pendapatan</div>
+                    <div class="fw-bold text-success fs-5">
+                        Rp <fmt:formatNumber value="${totalPendapatan}" type="number" maxFractionDigits="0"/>
+                    </div>
                 </div>
             </div>
         </div>

@@ -76,6 +76,9 @@
                 <h4 class="mb-0 fw-bold">👥 Kelola Member</h4>
                 <small class="text-muted">Manajemen akun pengguna EcoRide</small>
             </div>
+            <a href="${pageContext.request.contextPath}/admin" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
         </div>
 
         <!-- Alert -->

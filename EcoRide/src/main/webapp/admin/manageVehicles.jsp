@@ -197,7 +197,7 @@
             Admin: <strong><%= adminMember != null ? adminMember.getUsername() : "" %></strong>
         </span></li>
         <li>
-            <a href="<%= request.getContextPath() %>/login?logout=true"
+            <a href="<%= request.getContextPath() %>/logout"
                class="btn-logout"
                onclick="event.preventDefault();
                         document.getElementById('logoutForm').submit();">
@@ -207,7 +207,7 @@
     </ul>
 </nav>
 <form id="logoutForm" method="post"
-      action="<%= request.getContextPath() %>/login?action=logout"
+      action="<%= request.getContextPath() %>/logout"
       style="display:none;"></form>
 
 <!-- ============================================================
@@ -220,11 +220,11 @@
         <div class="sidebar-label">Menu Admin</div>
         <a href="<%= request.getContextPath() %>/admin?page=dashboard"
            class="sidebar-link">📊 Dashboard</a>
-        <a href="<%= request.getContextPath() %>/admin?page=vehicles"
+        <a href="<%= request.getContextPath() %>/admin?page=vehicle"
            class="sidebar-link active">🚗 Kendaraan</a>
-        <a href="<%= request.getContextPath() %>/admin?page=members"
+        <a href="<%= request.getContextPath() %>/admin?page=member"
            class="sidebar-link">👥 Member</a>
-        <a href="<%= request.getContextPath() %>/admin?page=transactions"
+        <a href="<%= request.getContextPath() %>/admin?page=transaction"
            class="sidebar-link">📋 Transaksi</a>
     </aside>
 
@@ -237,9 +237,12 @@
                 <h1 class="page-title">Kelola Kendaraan</h1>
                 <p class="page-sub">Tambah, hapus, dan isi ulang baterai kendaraan</p>
             </div>
-            <button class="btn btn-primary" onclick="openAddModal()">
-                + Tambah Kendaraan
-            </button>
+            <div style="display:flex;gap:.5rem;align-items:center;">
+                <a href="<%= request.getContextPath() %>/admin" class="btn btn-secondary">Kembali</a>
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    + Tambah Kendaraan
+                </button>
+            </div>
         </div>
 
         <!-- Alert sukses -->

@@ -170,6 +170,73 @@
             </div>
         </div>
 
+        <!-- Pengajuan Top-Up -->
+        <div class="card table-card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bi bi-wallet2"></i> Pengajuan Top-Up Menunggu Approval
+                </h6>
+                <span class="badge bg-warning text-dark">${pendingTopUpCount} pending</span>
+            </div>
+            <div class="card-body p-0">
+                <c:choose>
+                    <c:when test="${empty pendingTopUps}">
+                        <div class="text-center text-muted py-4">
+                            Tidak ada pengajuan top-up yang menunggu approval.
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Referensi</th>
+                                        <th>Member</th>
+                                        <th>Nominal</th>
+                                        <th>Metode</th>
+                                        <th>Akun/Referensi Bayar</th>
+                                        <th>Waktu</th>
+                                        <th class="text-center pe-3">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="r" items="${pendingTopUps}">
+                                        <tr>
+                                            <td class="ps-3"><code>${r[5]}</code></td>
+                                            <td>${r[1]}</td>
+                                            <td class="fw-semibold text-success">
+                                                Rp <fmt:formatNumber value="${r[2]}" type="number" maxFractionDigits="0"/>
+                                            </td>
+                                            <td>${r[3]}</td>
+                                            <td>${r[4]}</td>
+                                            <td class="text-muted small">${r[7]}</td>
+                                            <td class="text-center pe-3">
+                                                <form action="${pageContext.request.contextPath}/admin" method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="approveTopUp">
+                                                    <input type="hidden" name="requestId" value="${r[0]}">
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="bi bi-check-circle"></i> Setujui
+                                                    </button>
+                                                </form>
+                                                <form action="${pageContext.request.contextPath}/admin" method="POST" class="d-inline"
+                                                      onsubmit="return confirm('Tolak pengajuan top-up ini?')">
+                                                    <input type="hidden" name="action" value="rejectTopUp">
+                                                    <input type="hidden" name="requestId" value="${r[0]}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
+                                                        <i class="bi bi-x-circle"></i> Tolak
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+
         <!-- Tabel Member -->
         <div class="card table-card shadow-sm mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
@@ -266,8 +333,8 @@
                                             Rp <fmt:formatNumber value="${t[4]}" type="number" maxFractionDigits="0"/>
                                         </td>
                                         <td class="pe-3">
-                                            <span class="badge ${t[5] == 'COMPLETED' ? 'bg-success' : 'bg-warning text-dark'}">
-                                                ${t[5]}
+                                            <span class="badge ${t[6] == 'COMPLETED' ? 'bg-success' : 'bg-warning text-dark'}">
+                                                ${t[6]}
                                             </span>
                                         </td>
                                     </tr>
