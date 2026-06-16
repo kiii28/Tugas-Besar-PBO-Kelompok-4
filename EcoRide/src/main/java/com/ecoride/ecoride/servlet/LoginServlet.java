@@ -19,18 +19,18 @@ import java.io.IOException;
  * LoginServlet
  * URL: /login  (didefinisikan di web.xml)
  *
- * GET  → tampilkan login.jsp
- * POST → proses form login
- *         - Berhasil Admin  → redirect /admin
- *         - Berhasil User   → redirect /vehicles
- *         - Gagal           → kembali ke login.jsp dengan pesan error
+ * GET  â†’ tampilkan login.jsp
+ * POST â†’ proses form login
+ *         - Berhasil Admin  â†’ redirect /admin
+ *         - Berhasil User   â†’ redirect /vehicles
+ *         - Gagal           â†’ kembali ke login.jsp dengan pesan error
  */
 public class LoginServlet extends HttpServlet {
 
     private final MemberDAO memberDAO = new MemberDAO();
 
     // =========================================================
-    // GET — tampilkan halaman login
+    // GET â€” tampilkan halaman login
     // =========================================================
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -38,7 +38,7 @@ public class LoginServlet extends HttpServlet {
 
         // Jika sudah login, langsung ke halaman yang sesuai
         if (SessionUtil.isLoggedIn(request)) {
-            System.out.println("[LoginServlet] doGet() — sudah login, redirect...");
+            System.out.println("[LoginServlet] doGet() â€” sudah login, redirect...");
             if (SessionUtil.isAdmin(request)) {
                 response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
             } else {
@@ -52,7 +52,7 @@ public class LoginServlet extends HttpServlet {
     }
 
     // =========================================================
-    // POST — proses login
+    // POST â€” proses login
     // =========================================================
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -63,9 +63,9 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        // DEBUG — hapus setelah aplikasi stabil
-        System.out.println("[LoginServlet] doPost() — username='" + username + "'");
-        System.out.println("[LoginServlet] doPost() — DBConnection test: "
+        // DEBUG â€” hapus setelah aplikasi stabil
+        System.out.println("[LoginServlet] doPost() â€” username='" + username + "'");
+        System.out.println("[LoginServlet] doPost() â€” DBConnection test: "
                 + DBConnection.testConnection());
 
         // ---- Validasi input tidak boleh kosong ----
@@ -81,16 +81,16 @@ public class LoginServlet extends HttpServlet {
         Member member = memberDAO.login(username.trim(), password);
 
         if (member != null) {
-            // Login berhasil — simpan ke session
+            // Login berhasil â€” simpan ke session
             SessionUtil.setMember(request, member);
             System.out.println("[LoginServlet] Login berhasil: " + member.toString());
 
             // Arahkan sesuai role
             if (member.isAdmin()) {
-                System.out.println("[LoginServlet] Role Admin → redirect /admin");
+                System.out.println("[LoginServlet] Role Admin â†’ redirect /admin");
                 response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
             } else {
-                System.out.println("[LoginServlet] Role User → redirect /member");
+                System.out.println("[LoginServlet] Role User â†’ redirect /member");
                 response.sendRedirect(request.getContextPath() + "/member/dashboard.jsp");
             }
 
@@ -104,3 +104,4 @@ public class LoginServlet extends HttpServlet {
         
     }
 }
+

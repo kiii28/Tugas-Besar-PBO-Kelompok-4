@@ -6,6 +6,7 @@
 package com.ecoride.ecoride.servlet;
 
 import com.ecoride.ecoride.dao.MemberDAO;
+import com.ecoride.ecoride.dao.TopUpDAO;
 import com.ecoride.ecoride.dao.TransactionDAO;
 import com.ecoride.ecoride.dao.VehicleDAO;
 import com.ecoride.ecoride.model.ElectricBike;
@@ -40,6 +41,7 @@ import java.util.List;
 public class AdminServlet extends HttpServlet {
 
     private final MemberDAO      memberDAO      = new MemberDAO();
+    private final TopUpDAO       topUpDAO       = new TopUpDAO();
     private final VehicleDAO     vehicleDAO     = new VehicleDAO();
     private final TransactionDAO transactionDAO = new TransactionDAO();
 
@@ -58,12 +60,15 @@ public class AdminServlet extends HttpServlet {
 
         switch (page) {
             case "member":
+            case "members":
                 showMemberPage(request, response);
                 break;
             case "vehicle":
+            case "vehicles":
                 showVehiclePage(request, response);
                 break;
             case "transaction":
+            case "transactions":
                 showTransactionPage(request, response);
                 break;
             default:
@@ -93,8 +98,12 @@ public class AdminServlet extends HttpServlet {
             doAddVehicle(request, response);
         } else if ("deleteVehicle".equals(action)) {
             doDeleteVehicle(request, response);
-        } else if ("chargeVehicle".equals(action)) {
+        } else if ("chargeVehicle".equals(action) || "recharge".equals(action)) {
             doChargeVehicle(request, response);
+        } else if ("approveTopUp".equals(action)) {
+            doApproveTopUp(request, response);
+        } else if ("rejectTopUp".equals(action)) {
+            doRejectTopUp(request, response);
         } else {
             response.sendRedirect(request.getContextPath() + "/admin");
         }
@@ -115,16 +124,19 @@ public class AdminServlet extends HttpServlet {
         long kendaraanTersedia = vehicleDAO.getAllAvailable().size();
         List<Object[]> daftarTransaksi = transactionDAO.getAll();
         double totalPendapatan = transactionDAO.getTotalPendapatan();
+        int pendingTopUpCount = topUpDAO.countPendingRequests();
 
         request.setAttribute("totalMember",       totalMember);
         request.setAttribute("kendaraanTersedia", kendaraanTersedia);
         request.setAttribute("totalTransaksi",    daftarTransaksi.size());
         request.setAttribute("totalPendapatan",   totalPendapatan);
+        request.setAttribute("pendingTopUpCount", pendingTopUpCount);
         request.setAttribute("daftarMember",      daftarMember);
         request.setAttribute("daftarTransaksi",   daftarTransaksi.size() > 5
                 ? daftarTransaksi.subList(0, 5) : daftarTransaksi);
+        request.setAttribute("pendingTopUps",     topUpDAO.getPendingRequests());
 
-        request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin/dashboards.jsp").forward(request, response);
     }
 
     // =========================================================
@@ -133,7 +145,7 @@ public class AdminServlet extends HttpServlet {
     private void showMemberPage(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setAttribute("daftarMember", memberDAO.getAllMembers());
-        request.getRequestDispatcher("/admin/manageMember.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin/manageMembers.jsp").forward(request, response);
     }
 
     // =========================================================
@@ -141,8 +153,11 @@ public class AdminServlet extends HttpServlet {
     // =========================================================
     private void showVehiclePage(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("daftarKendaraan", vehicleDAO.getAll());
-        request.getRequestDispatcher("/admin/manageVehicle.jsp").forward(request, response);
+        List<com.ecoride.ecoride.model.Vehicle> vehicles = vehicleDAO.getAll();
+        request.setAttribute("daftarKendaraan", vehicles);
+        request.setAttribute("vehicles", vehicles);
+        request.setAttribute("member", SessionUtil.getMember(request));
+        request.getRequestDispatcher("/admin/manageVehicles.jsp").forward(request, response);
     }
 
     // =========================================================
@@ -200,21 +215,25 @@ public class AdminServlet extends HttpServlet {
     private void doAddVehicle(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         try {
-            String vehicleId  = request.getParameter("vehicleId").trim().toUpperCase();
+            String vehicleId  = getFirstParameter(request, "vehicleId", "vehicleCode").trim().toUpperCase();
             String model      = request.getParameter("model").trim();
             String type       = request.getParameter("vehicleType");
-            double battery    = Double.parseDouble(request.getParameter("batteryLevel"));
-            double price      = Double.parseDouble(request.getParameter("pricePerMinute"));
+            double battery    = parseDoubleOrDefault(request.getParameter("batteryLevel"), 100.0);
+            double price      = Double.parseDouble(getFirstParameter(request, "pricePerMinute", "rentPerMinute"));
 
-            boolean ok;
-            if ("BIKE".equals(type)) {
+            boolean ok = false;
+            if ("BIKE".equalsIgnoreCase(type) || "bike".equalsIgnoreCase(type)) {
                 boolean hasPedals = "true".equals(request.getParameter("hasPedals"));
                 ElectricBike bike = new ElectricBike(vehicleId, model, battery, true, price, hasPedals);
                 ok = vehicleDAO.addVehicle(bike);
-            } else {
+            } else if ("SCOOTER".equalsIgnoreCase(type) || "scooter".equalsIgnoreCase(type)) {
                 int maxSpeed = Integer.parseInt(request.getParameter("maxSpeed"));
                 ElectricScooter scooter = new ElectricScooter(vehicleId, model, battery, true, price, maxSpeed);
                 ok = vehicleDAO.addVehicle(scooter);
+            } else {
+                request.setAttribute("errorMsg", "Tipe kendaraan tidak valid.");
+                showVehiclePage(request, response);
+                return;
             }
 
             if (ok) {
@@ -227,6 +246,21 @@ public class AdminServlet extends HttpServlet {
             System.err.println("[AdminServlet] doAddVehicle() error: " + e.getMessage());
         }
         showVehiclePage(request, response);
+    }
+
+    private String getFirstParameter(HttpServletRequest request, String firstName, String secondName) {
+        String value = request.getParameter(firstName);
+        if (value == null || value.trim().isEmpty()) {
+            value = request.getParameter(secondName);
+        }
+        return value;
+    }
+
+    private double parseDoubleOrDefault(String value, double defaultValue) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        return Double.parseDouble(value);
     }
 
     // =========================================================
@@ -257,5 +291,39 @@ public class AdminServlet extends HttpServlet {
             request.setAttribute("errorMsg", "Gagal meng-charge kendaraan.");
         }
         showVehiclePage(request, response);
+    }
+
+    private void doApproveTopUp(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        try {
+            int requestId = Integer.parseInt(request.getParameter("requestId"));
+            Member admin = SessionUtil.getMember(request);
+            boolean ok = topUpDAO.approveRequest(requestId, admin.getId());
+            if (ok) {
+                request.setAttribute("successMsg", "Top-up berhasil disetujui. Saldo member sudah bertambah.");
+            } else {
+                request.setAttribute("errorMsg", "Gagal approve top-up. Pengajuan mungkin sudah diproses.");
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMsg", "ID pengajuan top-up tidak valid.");
+        }
+        showDashboard(request, response);
+    }
+
+    private void doRejectTopUp(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        try {
+            int requestId = Integer.parseInt(request.getParameter("requestId"));
+            Member admin = SessionUtil.getMember(request);
+            boolean ok = topUpDAO.rejectRequest(requestId, admin.getId());
+            if (ok) {
+                request.setAttribute("successMsg", "Pengajuan top-up berhasil ditolak.");
+            } else {
+                request.setAttribute("errorMsg", "Gagal menolak top-up. Pengajuan mungkin sudah diproses.");
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMsg", "ID pengajuan top-up tidak valid.");
+        }
+        showDashboard(request, response);
     }
 }

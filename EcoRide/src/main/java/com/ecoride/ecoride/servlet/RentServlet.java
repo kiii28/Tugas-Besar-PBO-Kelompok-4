@@ -1,92 +1,105 @@
-
-/**
- *
- * @author Fikri
- */
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.ecoride.ecoride.servlet;
 
-import java.io.IOException;
+import com.ecoride.ecoride.dao.MemberDAO;
+import com.ecoride.ecoride.dao.TransactionDAO;
+import com.ecoride.ecoride.dao.VehicleDAO;
+import com.ecoride.ecoride.model.Member;
+import com.ecoride.ecoride.model.Vehicle;
+import com.ecoride.ecoride.util.SessionUtil;
+
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-// Import model yang dibutuhkan
-import com.ecoride.ecoride.model.ElectricBike;
-import com.ecoride.ecoride.model.ElectricScooter;
-import com.ecoride.ecoride.model.Vehicle;
-
-/**
- *
- * @author Fikri
- */
+import java.io.IOException;
 
 public class RentServlet extends HttpServlet {
 
-    // 1. MENAMPILKAN FORM KONFIRMASI SEWA
+    private final VehicleDAO vehicleDAO = new VehicleDAO();
+    private final MemberDAO memberDAO = new MemberDAO();
+    private final TransactionDAO transactionDAO = new TransactionDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // Menangkap parameter ID kendaraan yang diklik dari halaman katalog
+
+        if (SessionUtil.redirectIfNotLoggedIn(request, response)) return;
+
         String vehicleId = request.getParameter("id");
-        
-        if (vehicleId == null || vehicleId.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/member/vehicles");
+        if (vehicleId == null || vehicleId.trim().isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/vehicles");
             return;
         }
 
-        // MEMBUAT MOCK DATA KENDARAAN YANG DIPILIH
-        Vehicle selectedVehicle;
-        
-        if (vehicleId.startsWith("EB")) {
-            ElectricBike bike = new ElectricBike();
-            bike.setVehicleID(vehicleId);
-            bike.setModel("EcoBike Deluxe X (Selected)");
-            bike.setBatteryLevel(92.5);
-            bike.setAvailable(true);
-            bike.setHasPedals(true);
-            selectedVehicle = bike;
-        } else {
-            ElectricScooter scooter = new ElectricScooter();
-            scooter.setVehicleID(vehicleId);
-            scooter.setModel("SpeedScooter Evo (Selected)");
-            scooter.setBatteryLevel(40.0);
-            scooter.setAvailable(true);
-            scooter.setMaxSpeed(25);
-            selectedVehicle = scooter;
+        Vehicle selectedVehicle = vehicleDAO.findByVehicleId(vehicleId.trim());
+        if (selectedVehicle == null || !selectedVehicle.isAvailable()) {
+            request.setAttribute("errorMsg", "Kendaraan tidak ditemukan atau sedang tidak tersedia.");
+            request.setAttribute("daftarKendaraan", vehicleDAO.getAllAvailable());
+            request.setAttribute("member", SessionUtil.getMember(request));
+            request.getRequestDispatcher("/member/vehicle.jsp").forward(request, response);
+            return;
         }
 
-        // Kirim data kendaraan yang dipilih ke halaman rent.jsp
         request.setAttribute("chosenVehicle", selectedVehicle);
-        
-        // Simulasi harga sewa statis (misal: Rp 15.000 / jam)
-        request.setAttribute("rentalPrice", 15000);
-        
+        request.setAttribute("member", SessionUtil.getMember(request));
+        request.setAttribute("rentalPrice", selectedVehicle.getRentPerMinute() * 60);
         request.getRequestDispatcher("/member/rent.jsp").forward(request, response);
     }
 
-    // 2. MEMPROSES SUBMIT FORM (SIMULASI BERHASIL BAYAR)
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // Menangkap data inputan durasi dan ID dari form rent.jsp
-        String vehicleId = request.getParameter("vehicleID");
+
+        if (SessionUtil.redirectIfNotLoggedIn(request, response)) return;
+
+        String vehicleId = request.getParameter("vehicleId");
         String durationStr = request.getParameter("duration");
-        
-        // Di sini nanti tempat Danish/Syahrial memasukkan query INSERT ke database transaksi.
-        // Karena kita pakai Mock Data, kita langsung asumsikan proses sewa BERHASIL.
-        
-        // Set pesan sukses menggunakan session agar terbaca di halaman berikutnya
-        request.getSession().setAttribute("successMessage", "Sewa kendaraan " + vehicleId + " selama " + durationStr + " jam BERHASIL!");
-        
-        // Alihkan halaman ke Servlet Riwayat Transaksi (TransactionServlet) setelah berhasil
-        response.sendRedirect(request.getContextPath() + "/member/history");
+        Member member = SessionUtil.getMember(request);
+        Vehicle vehicle = vehicleDAO.findByVehicleId(vehicleId);
+
+        int durationHours;
+        try {
+            durationHours = Integer.parseInt(durationStr);
+        } catch (NumberFormatException e) {
+            showRentError(request, response, vehicle, member, "Durasi sewa tidak valid.");
+            return;
+        }
+
+        if (vehicle == null || !vehicle.isAvailable()) {
+            showRentError(request, response, vehicle, member, "Kendaraan tidak ditemukan atau sedang tidak tersedia.");
+            return;
+        }
+
+        int durationMinutes = durationHours * 60;
+        double totalCost = vehicle.calculateRent(durationMinutes);
+        totalCost = totalCost - (totalCost * member.getDiscount());
+
+        if (!memberDAO.deductBalance(member.getId(), totalCost)) {
+            showRentError(request, response, vehicle, member, "Saldo tidak cukup untuk melakukan sewa.");
+            return;
+        }
+
+        boolean saved = transactionDAO.createCompleted(member.getId(), vehicleId, durationHours, totalCost);
+        if (!saved) {
+            memberDAO.topUp(member.getId(), totalCost);
+            showRentError(request, response, vehicle, member, "Transaksi gagal disimpan. Saldo dikembalikan.");
+            return;
+        }
+
+        Member updated = memberDAO.findById(member.getId());
+        if (updated != null) SessionUtil.updateMember(request, updated);
+
+        request.getSession().setAttribute("successMessage",
+                "Sewa kendaraan " + vehicleId + " selama " + durationHours + " jam berhasil.");
+        response.sendRedirect(request.getContextPath() + "/transactions");
+    }
+
+    private void showRentError(HttpServletRequest request, HttpServletResponse response,
+                               Vehicle vehicle, Member member, String message)
+            throws ServletException, IOException {
+        request.setAttribute("errorMsg", message);
+        request.setAttribute("chosenVehicle", vehicle);
+        request.setAttribute("member", member);
+        request.getRequestDispatcher("/member/rent.jsp").forward(request, response);
     }
 }

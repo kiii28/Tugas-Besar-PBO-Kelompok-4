@@ -42,7 +42,8 @@ public class VehicleServlet extends HttpServlet {
         List<Vehicle> vehicles = vehicleDAO.getAllAvailable();
 
         request.setAttribute("vehicles", vehicles);
+        request.setAttribute("daftarKendaraan", vehicles);
         request.setAttribute("member", SessionUtil.getMember(request));
-        request.getRequestDispatcher("/member/vehicles.jsp").forward(request, response);
+        request.getRequestDispatcher("/member/vehicle.jsp").forward(request, response);
     }
 }

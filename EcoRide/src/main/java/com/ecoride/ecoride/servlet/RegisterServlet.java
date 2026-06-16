@@ -6,7 +6,6 @@ package com.ecoride.ecoride.servlet;
 
 import com.ecoride.ecoride.dao.MemberDAO;
 import com.ecoride.ecoride.model.Member;
-import com.ecoride.ecoride.util.PasswordUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -69,8 +68,8 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // buat objek Member baru dengan password yang sudah di-hash
-        Member newMember = new Member(username.trim(), PasswordUtil.hash(password));
+        // MemberDAO.register() yang akan melakukan hashing sebelum simpan ke database.
+        Member newMember = new Member(username.trim(), password);
 
         boolean success = memberDAO.register(newMember);
 
@@ -78,7 +77,9 @@ public class RegisterServlet extends HttpServlet {
             // redirect ke login dengan pesan sukses
             response.sendRedirect(request.getContextPath() + "/login?registered=true");
         } else {
-            request.setAttribute("error", "Registrasi gagal, coba lagi.");
+            String detail = memberDAO.getLastError();
+            request.setAttribute("error", detail != null ? detail : "Registrasi gagal, coba lagi.");
+            request.setAttribute("username", username);
             request.getRequestDispatcher("/register.jsp").forward(request, response);
         }
     }
