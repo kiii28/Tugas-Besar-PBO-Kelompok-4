@@ -58,7 +58,7 @@
     </c:if>
 
     <h4 class="mb-4">Selamat datang, <strong>${member.username}</strong>! 👋</h4>
-
+    
     <!-- Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-4">
@@ -189,6 +189,13 @@
             </c:choose>
         </div>
     </div>
+    
+    <div class="row g-3 mb-4">
+        <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+    </a>
+    </div>
+
 
 </div>
 

@@ -16,9 +16,14 @@
         <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/vehicles">
             <i class="bi bi-ev-station"></i> EcoRide
         </a>
-        <span class="text-white small">
-            Saldo: <strong>Rp <fmt:formatNumber value="${member.balance}" type="number" maxFractionDigits="0"/></strong>
-        </span>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-white small">
+                Saldo: <strong>Rp <fmt:formatNumber value="${member.balance}" type="number" maxFractionDigits="0"/></strong>
+            </span>
+            <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+        </div>
     </div>
 </nav>
 
@@ -63,8 +68,9 @@
                     <label class="form-label fw-bold">Tarif Sewa</label>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
+                        <fmt:formatNumber var="formattedPrice" value="${chosenVehicle.pricePerMinute}" maxFractionDigits="0"/>
                         <input type="text" class="form-control bg-light"
-                               value="<fmt:formatNumber value='${chosenVehicle.pricePerMinute}' maxFractionDigits='0'/> / menit"
+                               value="${formattedPrice} / menit"
                                disabled />
                     </div>
                 </div>
@@ -73,16 +79,18 @@
                     <label class="form-label fw-bold">Saldo Kamu</label>
                     <div class="input-group">
                         <span class="input-group-text">Rp</span>
+                        <fmt:formatNumber var="formattedBalance" value="${member.balance}" type="number" maxFractionDigits="0"/>
                         <input type="text" class="form-control bg-light"
-                               value="<fmt:formatNumber value='${member.balance}' type='number' maxFractionDigits='0'/>"
+                               value="${formattedBalance}"
                                disabled />
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Diskon Membership</label>
+                    <fmt:formatNumber var="formattedDiscount" value="${member.discount * 100}" maxFractionDigits="0"/>
                     <input type="text" class="form-control bg-light"
-                           value="<fmt:formatNumber value='${member.discount * 100}' maxFractionDigits='0'/>% (${member.membershipType})"
+                           value="${formattedDiscount}% (${member.membershipType})"
                            disabled />
                 </div>
 
@@ -106,7 +114,7 @@
                         <i class="bi bi-check-circle"></i> Konfirmasi Sewa
                     </button>
                     <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Batal
+                        <i class="bi bi-arrow-left"></i> Kembali ke Kendaraan
                     </a>
                 </div>
             </form>

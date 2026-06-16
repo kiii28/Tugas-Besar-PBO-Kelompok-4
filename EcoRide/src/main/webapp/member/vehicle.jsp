@@ -14,7 +14,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-dark bg-success shadow-sm">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/vehicles">
+        <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/dashboard">
             <i class="bi bi-ev-station"></i> EcoRide
         </a>
         <div class="d-flex align-items-center gap-3">
@@ -24,6 +24,9 @@
             </span>
             <a href="${pageContext.request.contextPath}/transactions" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-clock-history"></i> Riwayat
+            </a>
+            <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Kembali
             </a>
             <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-box-arrow-right"></i> Logout
@@ -35,9 +38,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4><i class="bi bi-bicycle"></i> Katalog Kendaraan Listrik</h4>
-        <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-outline-success btn-sm">
-            <i class="bi bi-arrow-clockwise"></i> Refresh
-        </a>
+        <div class="d-flex gap-2">
+            <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+            <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </a>
+        </div>
     </div>
 
     <!-- Pesan error jika ada -->

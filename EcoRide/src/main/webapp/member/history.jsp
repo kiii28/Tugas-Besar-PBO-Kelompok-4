@@ -13,7 +13,7 @@
 
 <nav class="navbar navbar-dark bg-success shadow-sm">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/vehicles">
+        <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/dashboard">
             <i class="bi bi-ev-station"></i> EcoRide
         </a>
         <div class="d-flex align-items-center gap-3">
@@ -21,6 +21,9 @@
                 <i class="bi bi-wallet2"></i>
                 Saldo: <strong>Rp <fmt:formatNumber value="${member.balance}" type="number" maxFractionDigits="0"/></strong>
             </span>
+            <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
             <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
@@ -41,9 +44,14 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4><i class="bi bi-clock-history"></i> Riwayat Penyewaan</h4>
-        <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-success btn-sm">
-            <i class="bi bi-plus-circle"></i> Sewa Lagi
-        </a>
+        <div class="d-flex gap-2">
+            <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+            <a href="${pageContext.request.contextPath}/vehicles" class="btn btn-success btn-sm">
+                <i class="bi bi-plus-circle"></i> Sewa Lagi
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm">
