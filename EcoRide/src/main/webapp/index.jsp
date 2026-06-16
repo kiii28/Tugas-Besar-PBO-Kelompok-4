@@ -7,7 +7,7 @@
         if (sessionMember.isAdmin()) {
             response.sendRedirect(request.getContextPath() + "/admin");
         } else {
-            response.sendRedirect(request.getContextPath() + "/vehicles");
+            response.sendRedirect(request.getContextPath() + "/dashboard");
         }
         return;
     }
@@ -17,7 +17,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoRide — Sewa Kendaraan Listrik</title>
+    <title>EcoRide ” Sewa Kendaraan Listrik</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
     <style>
         /* ====================================================
@@ -181,7 +181,7 @@
          ====================================================== -->
     <section class="hero">
         <div class="hero-content">
-            <div class="hero-logo">⚡</div>
+            <div class="hero-logo">⚡⚡</div>
             <h1 class="hero-title">
                 Selamat Datang di<br><span>EcoRide</span>
             </h1>
@@ -209,22 +209,22 @@
             <p class="features-sub">Solusi transportasi modern yang mudah, cepat, dan ramah lingkungan</p>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">🚲</div>
+                    <div class="feature-icon"></div>
                     <div class="feature-name">Sepeda Listrik</div>
                     <p class="feature-desc">Sepeda listrik nyaman dengan pilihan model berkualitas untuk perjalanan singkat.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🛵</div>
+                    <div class="feature-icon"></div>
                     <div class="feature-name">Skuter Listrik</div>
                     <p class="feature-desc">Skuter listrik cepat dan efisien untuk mobilitas lebih jauh di sekitar kampus.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔋</div>
+                    <div class="feature-icon"></div>
                     <div class="feature-name">Baterai Terpantau</div>
                     <p class="feature-desc">Status baterai selalu terpantau. Hanya kendaraan siap pakai yang tersedia.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">💳</div>
+                    <div class="feature-icon"></div>
                     <div class="feature-name">Saldo Digital</div>
                     <p class="feature-desc">Top-up saldo kapan saja. Bayar otomatis saat selesai menyewa.</p>
                 </div>
@@ -236,8 +236,9 @@
          FOOTER
          ====================================================== -->
     <footer class="footer">
-        <p>&copy; 2025 <span>EcoRide</span> — Kelompok 4 IF-48-02, Universitas Telkom</p>
+        <p>&copy; 2025 <span>EcoRide</span> ” Kelompok 4 IF-48-02, Universitas Telkom</p>
     </footer>
 
 </body>
 </html>
+
