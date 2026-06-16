@@ -23,6 +23,12 @@ import java.util.List;
 
 public class MemberDAO {
 
+    private String lastError;
+
+    public String getLastError() {
+        return lastError;
+    }
+
     // =========================================================
     // LOGIN
     // =========================================================
@@ -67,6 +73,7 @@ public class MemberDAO {
     // REGISTER
     // =========================================================
     public boolean register(Member member) {
+        lastError = null;
         String sql = "INSERT INTO members (username, password_hash, balance, membership_type, role_id) "
                    + "VALUES (?, ?, 0.0, 'Regular', 2)";
 
@@ -75,6 +82,7 @@ public class MemberDAO {
         try {
             String hashed = PasswordUtil.hash(member.getPassword());
             if (hashed == null) {
+                lastError = "Password tidak valid.";
                 System.err.println("[MemberDAO] register() — gagal hash password.");
                 return false;
             }
@@ -87,12 +95,34 @@ public class MemberDAO {
                     + " untuk: " + member.getUsername());
             return ok;
         } catch (SQLException e) {
+            lastError = buildUserFriendlyError(e);
             System.err.println("[MemberDAO] register() error: " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
             tutup(null, ps, conn);
         }
+    }
+
+    private String buildUserFriendlyError(SQLException e) {
+        String message = e.getMessage() != null ? e.getMessage() : "";
+        String lowerMessage = message.toLowerCase();
+        String sqlState = e.getSQLState() != null ? e.getSQLState() : "";
+
+        if (sqlState.startsWith("08") || lowerMessage.contains("communications link failure")
+                || lowerMessage.contains("connection refused")) {
+            return "Database MySQL belum berjalan. Jalankan MySQL/XAMPP dulu, lalu coba daftar lagi.";
+        }
+        if (lowerMessage.contains("access denied")) {
+            return "Username/password database salah. Cek konfigurasi DBConnection.java.";
+        }
+        if (lowerMessage.contains("duplicate")) {
+            return "Username sudah dipakai, coba yang lain.";
+        }
+        if (lowerMessage.contains("unknown database")) {
+            return "Database belum tersedia dan gagal dibuat otomatis. Pastikan MySQL berjalan dengan user root.";
+        }
+        return "Registrasi gagal karena masalah database: " + message;
     }
 
     // =========================================================
@@ -262,16 +292,22 @@ public class MemberDAO {
     // =========================================================
     public boolean delete(int memberId) {
         // Hapus transaksi member dulu (hindari FK constraint error)
+        String sqlTopUp = "DELETE FROM topup_requests WHERE member_id = ?";
         String sqlTx  = "DELETE FROM rental_transactions WHERE member_id = ?";
         String sqlMem = "DELETE FROM members WHERE id = ? AND role_id != 1";
         // role_id != 1 → tidak bisa hapus Admin
 
         Connection conn = null;
+        PreparedStatement ps0 = null;
         PreparedStatement ps1 = null;
         PreparedStatement ps2 = null;
         try {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
+
+            ps0 = conn.prepareStatement(sqlTopUp);
+            ps0.setInt(1, memberId);
+            ps0.executeUpdate();
 
             // Hapus transaksi dulu
             ps1 = conn.prepareStatement(sqlTx);
@@ -301,7 +337,8 @@ public class MemberDAO {
             }
         } finally {
             tutup(null, ps2, null);
-            tutup(null, ps1, conn);
+            tutup(null, ps1, null);
+            tutup(null, ps0, conn);
         }
         return false;
     }

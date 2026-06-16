@@ -60,6 +60,41 @@ public class TransactionDAO {
     }
 
     // =========================================================
+    // BUAT TRANSAKSI SELESAI
+    // =========================================================
+    public boolean createCompleted(int memberId, String vehicleId, int durasiJam, double totalCost) {
+        String sql = "INSERT INTO rental_transactions "
+                   + "(transaction_id, member_id, vehicle_id, start_time, end_time, total_cost, status) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, 'COMPLETED')";
+
+        String txId       = "TRX-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        Date now          = new Date();
+        Date endTime      = new Date(now.getTime() + (long) durasiJam * 60 * 60 * 1000);
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBConnection.getConnection();
+            ps   = conn.prepareStatement(sql);
+            ps.setString(1, txId);
+            ps.setInt(2, memberId);
+            ps.setString(3, vehicleId);
+            ps.setTimestamp(4, new Timestamp(now.getTime()));
+            ps.setTimestamp(5, new Timestamp(endTime.getTime()));
+            ps.setDouble(6, totalCost);
+            boolean ok = ps.executeUpdate() > 0;
+            System.out.println("[TransactionDAO] createCompleted() â€” txId=" + txId + " " + (ok ? "OK" : "GAGAL"));
+            return ok;
+        } catch (SQLException e) {
+            System.err.println("[TransactionDAO] createCompleted() error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            tutup(null, ps, conn);
+        }
+        return false;
+    }
+
+    // =========================================================
     // SELESAIKAN TRANSAKSI
     // =========================================================
     public boolean complete(String transactionId, double totalCost) {
